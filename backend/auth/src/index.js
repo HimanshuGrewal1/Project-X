@@ -1,31 +1,35 @@
-const express=require('express');
-const cors=require('cors');
-const helmet = require('helmet');
-const { connectDB } = require('./config/db');
- const authRoutes = require('./routes/authRoutes');
-const errorHandler = require('./middleware/errorHandler');
-const app=express();
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-const dotenv=require('dotenv');
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import path from "path";
+
+import { connectDB } from "./db/connectDB.js";
+
+import authRoutes from "./routes/auth.route.js";
+
 dotenv.config();
- app.use('/api/auth', authRoutes);
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'auth-service running' });
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+const __dirname = path.resolve();
+
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+
+app.use(express.json()); // allows us to parse incoming requests:req.body
+app.use(cookieParser()); // allows us to parse incoming cookies
+
+app.use("/api/auth", authRoutes);
+
+
+// app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+// app.get("*", (req, res) => {
+// 		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+// 	});
+
+
+app.listen(PORT, () => {
+	connectDB();
+	console.log("Server is running on port no: ", PORT);
 });
-app.use(errorHandler);
-
-const PORT=process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-    res.send('Working auth');
-});
-const start = async () => {
-  await connectDB();
-  app.listen(PORT, () => {
-    console.log(`Auth service running on port ${PORT}`);
-  });
-};
-
-start();
