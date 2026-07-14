@@ -5,6 +5,7 @@ class Node(BaseModel):
     id: str = Field(description="Unique identifier for the node (e.g., '1', '2')")
     label: str = Field(description="The core topic or concept extracted")
     icon: Optional[str] = Field(None, description="An emoji representing the node's concept")
+    description: Optional[str] = Field(None, description="A brief explanation or context for the node")
 
 class Edge(BaseModel):
     source: str = Field(description="ID of the source node")

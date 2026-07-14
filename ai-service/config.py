@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+# Add your Modal URL configuration here
+MODAL_QWEN_BASE_URL = os.getenv("MODAL_QWEN_BASE_URL")
 PORT = int(os.getenv("PORT", 8000))
 
-if not GOOGLE_API_KEY:
-    raise ValueError("GOOGLE_API_KEY is not set in the environment.")
+if not MODAL_QWEN_BASE_URL:
+    raise ValueError("MODAL_QWEN_BASE_URL is not set in the environment.")
