@@ -1,10 +1,24 @@
 import React, { useState, useRef } from "react";
+import { useAuthStore } from "../store/authStore"; 
+import { useNavigate } from "react-router-dom";
 
 export default function VerifyEmail() {
-  const [otp, setOtp] = useState(new Array(6).fill(""));
-  const [isVerified, setIsVerified] = useState(false);
-  const [resendText, setResendText] = useState("Resend");
-  const inputRefs = useRef([]);
+const navigate = useNavigate();
+
+const {
+  verifyEmail,
+  isLoading,
+  error,
+  user,
+} = useAuthStore();
+
+console.log("User in VerifyEmail:", user); // Debugging line
+
+const [otp, setOtp] = useState(new Array(6).fill(""));
+const [isVerified, setIsVerified] = useState(false);
+const [resendText, setResendText] = useState("Resend");
+const inputRefs = useRef([]);
+
 
   const handleChange = (element, index) => {
     if (isNaN(element.value)) return false;
@@ -26,15 +40,28 @@ export default function VerifyEmail() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const code = otp.join("");
-    
-    // TODO: Replace with real backend verification logic
-    // await fetch('/api/verify-email', { ... })
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const code = otp.join("");
+
+  if (code.length !== 6) {
+    return;
+  }
+
+  try {
+    await verifyEmail(code);
 
     setIsVerified(true);
-  };
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 2000);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const handleResend = (e) => {
     e.preventDefault();
@@ -45,14 +72,18 @@ export default function VerifyEmail() {
   return (
     <div className="bg-gradient-to-right from-slate-900 to-blue-600 grid place-items-center min-h-screen font-sans p-4 select-none">
       <div className="overflow-hidden max-w-[390px] w-full bg-white p-[30px] rounded-[5px] shadow-[0px_15px_20px_rgba(0,0,0,0.1)]">
-        
+    
         {!isVerified ? (
           <div>
             <div className="text-[28px] font-semibold text-center mb-[10px]">Verify your email</div>
             <p className="text-center text-gray-500 text-[14px] mb-[25px]">
-              We sent a 6-digit code to <span className="font-medium text-black">you@example.com</span>
+              We sent a 6-digit code to <span className="font-medium text-black">{user?.email}</span>
             </p>
-
+{error && (
+  <p className="text-red-500 text-center mt-4">
+    {error}
+  </p>
+)}
             <form onSubmit={handleSubmit}>
               <div className="flex justify-between gap-2 mt-[20px]">
                 {otp.map((data, index) => (
@@ -75,12 +106,14 @@ export default function VerifyEmail() {
                   className="h-full w-[300%] absolute left-[-100%] rounded-[5px] transition-all duration-400 ease-[ease] group-hover:left-0" 
                   style={{ background: "linear-gradient(to right, #0f172a, #2563eb, #0f172a, #2563eb)" }}
                 />
-                <button 
-                  type="submit" 
-                  className="h-full w-full z-[1] relative bg-transparent border-none text-white rounded-[5px] text-[18px] font-medium pointer-events-none"
-                >
-                  Verify
-                </button>
+               <button
+  type="submit"
+  disabled={isLoading}
+  className="h-full w-full z-[1] relative bg-transparent border-none text-white rounded-[5px] text-[18px] font-medium"
+>
+    {isLoading ? "Verifying..." : "Verify"}
+</button>
+                  
               </div>
             </form>
 

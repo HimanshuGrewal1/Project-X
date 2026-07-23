@@ -1,64 +1,187 @@
 import React from "react";
+import { motion } from "framer-motion";
+import { FaProjectDiagram, FaRocket, FaSyncAlt } from "react-icons/fa";
 
+// ─── Configuration ───────────────────────────────────────────────
 const features = [
   {
     title: "Notebook-style projects",
-    description: "Organize prompts, outputs, and notes for each project in one place.",
+    description:
+      "Organize prompts, outputs, and notes for each project in one place.",
+    icon: <FaProjectDiagram className="text-2xl text-blue-500" />,
   },
   {
     title: "Fast iteration",
-    description: "Tweak prompts and instantly see results without leaving your workspace.",
+    description:
+      "Tweak prompts and instantly see results without leaving your workspace.",
+    icon: <FaRocket className="text-2xl text-blue-500" />,
   },
   {
     title: "Everything in sync",
-    description: "Your projects stay saved and accessible whenever you come back.",
+    description:
+      "Your projects stay saved and accessible whenever you come back.",
+    icon: <FaSyncAlt className="text-2xl text-blue-500" />,
   },
 ];
 
+// ─── Animation Variants ──────────────────────────────────────────
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } },
+};
+
+// ─── Component ────────────────────────────────────────────────────
 export default function Landing() {
   return (
-    <div className="bg-gradient-to-right from-slate-900 to-blue-600 h-full w-full min-h-screen font-sans text-white select-none">
-      
-      {/* Nav */}
-      <nav className="flex items-center justify-between max-w-[1000px] mx-auto px-[20px] py-[25px]">
-        <div className="text-[22px] font-semibold">MMcon</div>
-        <div className="flex items-center gap-[20px]">
-          <a href="/login" className="text-white text-[15px] no-underline hover:underline">Log in</a>
-          <a href="/signup" className="bg-white text-slate-900 text-[15px] font-medium px-[18px] py-[8px] rounded-[5px] no-underline">Sign up</a>
-        </div>
-      </nav>
+    <div className="relative min-h-screen w-full overflow-hidden bg-slate-900 font-sans text-white antialiased select-none">
+      {/* ─── Animated Background ────────────────────────────────── */}
+      <motion.div
+        className="absolute inset-0 -z-10"
+        animate={{
+          background: [
+            "radial-gradient(circle at 20% 20%, #1e3a8a, #0f172a)",
+            "radial-gradient(circle at 80% 80%, #2563eb, #0f172a)",
+            "radial-gradient(circle at 20% 80%, #1e3a8a, #0f172a)",
+            "radial-gradient(circle at 80% 20%, #2563eb, #0f172a)",
+          ],
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          repeatType: "mirror",
+          ease: "linear",
+        }}
+      />
 
-      {/* Hero */}
-      <div className="max-w-[700px] mx-auto text-center px-[20px] pt-[60px] pb-[80px]">
-        <h1 className="text-[40px] font-semibold leading-tight mb-[20px]">Build with LLMs in a notebook that just works</h1>
-        <p className="text-slate-300 text-[16px] mb-[35px]">MMcon lets you prototype, test, and organize LLM-powered projects side by side, all in one clean workspace.</p>
-        
-        <a href="/signup" className="group inline-block relative overflow-hidden rounded-[5px] h-[50px] w-[200px]">
-          <div 
-            className="h-full w-[300%] absolute left-[-100%] rounded-[5px] transition-all duration-400 ease-[ease] group-hover:left-0" 
-            style={{ background: "linear-gradient(to right, #0f172a, #2563eb, #0f172a, #2563eb)" }}
-          />
-          <span className="h-full w-full z-[1] relative flex items-center justify-center text-white text-[17px] font-medium">Get Started</span>
-        </a>
-      </div>
+      {/* ─── Content ──────────────────────────────────────────────── */}
+      <motion.div
+        className="relative z-10 flex min-h-screen flex-col"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        {/* ─── Nav ────────────────────────────────────────────────── */}
+        <motion.nav
+          variants={itemVariants}
+          className="flex items-center justify-between max-w-6xl mx-auto w-full px-6 py-5"
+        >
+          <div className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            <span className="inline-block h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-sky-500" />
+            MMcon
+          </div>
+          <div className="flex items-center gap-4">
+            <a
+              href="/login"
+              className="text-sm text-slate-300 transition-colors hover:text-white hover:underline"
+            >
+              Log in
+            </a>
+            <motion.a
+              href="/signup"
+              className="relative overflow-hidden rounded-md bg-white px-5 py-2 text-sm font-medium text-slate-900 shadow-md transition-shadow hover:shadow-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Sign up
+            </motion.a>
+          </div>
+        </motion.nav>
 
-      {/* Feature cards */}
-      <div className="max-w-[1000px] mx-auto px-[20px] pb-[80px]">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-[20px]">
-          {features.map((feature, index) => (
-            <div key={index} className="bg-white text-gray-900 rounded-[5px] p-[25px] shadow-[0px_15px_20px_rgba(0,0,0,0.1)]">
-              <div className="text-[18px] font-semibold mb-[8px]">{feature.title}</div>
-              <p className="text-gray-500 text-[14px]">{feature.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+        {/* ─── Hero ────────────────────────────────────────────────── */}
+        <motion.section
+          variants={itemVariants}
+          className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center"
+        >
+          <motion.h1
+            className="max-w-3xl text-4xl font-bold leading-tight sm:text-5xl md:text-6xl"
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            Build with LLMs in a notebook that just works
+          </motion.h1>
+          <motion.p
+            className="mt-4 max-w-2xl text-base text-slate-300 sm:text-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            MMcon lets you prototype, test, and organize LLM‑powered projects
+            side by side, all in one clean workspace.
+          </motion.p>
 
-      {/* Footer */}
-      <footer className="text-center text-slate-400 text-[13px] pb-[30px]">
-        &copy; {new Date().getFullYear()} MMcon. All rights reserved.
-      </footer>
+          <motion.a
+            href="/signup"
+            className="group relative mt-8 inline-flex h-12 w-48 items-center justify-center overflow-hidden rounded-md font-medium text-white"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <span className="absolute inset-0 -translate-x-full transition-transform duration-500 ease-out group-hover:translate-x-0 bg-gradient-to-r from-slate-800 via-blue-600 to-slate-800" />
+            <span className="relative z-10 flex items-center gap-2">
+              Get Started
+              <motion.span
+                animate={{ x: [0, 6, 0] }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              >
+                →
+              </motion.span>
+            </span>
+          </motion.a>
+        </motion.section>
 
+        {/* ─── Feature Cards ──────────────────────────────────────── */}
+        <motion.section
+          variants={containerVariants}
+          className="max-w-6xl mx-auto w-full px-6 pb-20"
+        >
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                whileHover={{
+                  y: -8,
+                  boxShadow: "0 20px 30px -10px rgba(37, 99, 235, 0.3)",
+                }}
+                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 30 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ type: "spring", stiffness: 200 }}
+                className="rounded-xl bg-white/10 backdrop-blur-sm p-6 shadow-lg ring-1 ring-white/10 transition-all hover:ring-blue-400/50"
+              >
+                <div className="mb-3 flex items-center gap-3">
+                  {feature.icon}
+                  <h3 className="text-lg font-semibold text-white">
+                    {feature.title}
+                  </h3>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* ─── Footer ────────────────────────────────────────────── */}
+        <motion.footer
+          variants={itemVariants}
+          className="mt-auto text-center text-sm text-slate-400 pb-6"
+        >
+          &copy; {new Date().getFullYear()} MMcon. All rights reserved.
+        </motion.footer>
+      </motion.div>
     </div>
   );
 }

@@ -24,8 +24,9 @@ async def api_extract_mindmap(file: UploadFile = File(...)):
     """
     Endpoint 1: Upload a PDF and get an initial Mind Map JSON[cite: 36].
     """
+    print (f"Received file: {file.filename}, content type: {file.content_type}")
     if not file.filename.endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+        raise HTTPException(status_code=403, detail="Only PDF files are supported.")
     
     try:
         # Read file bytes into memory
@@ -33,6 +34,7 @@ async def api_extract_mindmap(file: UploadFile = File(...)):
         
         # 1. Parse PDF
         text = await extract_text_from_pdf(file_bytes)
+        print (f"Extracted text from PDF: {text[:100]}...")  # Log first 100 chars
         
         # 2. Extract Mind Map via LLM
         mind_map = await generate_initial_mindmap(text)

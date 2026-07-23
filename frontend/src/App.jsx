@@ -1,121 +1,135 @@
-import {
-  ReactFlow,
-  MiniMap,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-} from "@xyflow/react";
+import { Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/landing-page";
+import SignupPage from "./pages/LoginSignup";
+import ResetPassword from "./pages/reset-password";
+//import LoginPage from "./Pages/LoginPage";
+import HomePage from "./pages/Dashboard";
+import EmailVerificationPage from "./pages/email-verification";
+import ForgotPasswordPage from "./pages/ForgotPassword";
+import { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuthStore } from "./store/authStore"
+import LoadingSpinner from "./components/LoadingSpinner";
+import ProjectPage from "./pages/Project";
+import { ReactFlowProvider } from "@xyflow/react";
 
-import "@xyflow/react/dist/style.css";
 
-import { useCallback } from "react";
+const ProtectedRoute = ({ children }) => {
+	const { isAuthenticated, user } = useAuthStore();
+    
+	if (!isAuthenticated) {
+		return <Navigate to='/login' replace />;
+	}
 
-const initialNodes = [
-  {
-    id: "1",
-    position: { x: 400, y: 250 },
-    data: { label: "🧠 Mind Map" },
-    style: {
-      background: "#2563eb",
-      color: "white",
-      borderRadius: "50%",
-      width: 120,
-      height: 120,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      border: "3px solid white",
-      fontWeight: "bold",
-      fontSize: "16px",
-    },
-  },
+	if (!user?.isVerified) {
+		return <Navigate to='/verify-email' replace />;
+	}
 
-  {
-    id: "2",
-    position: { x: 150, y: 80 },
-    data: { label: "DSA" },
-  },
+	return children;
+};
 
-  {
-    id: "3",
-    position: { x: 650, y: 100 },
-    data: { label: "React" },
-  },
 
-  {
-    id: "4",
-    position: { x: 120, y: 420 },
-    data: { label: "System Design" },
-  },
+const RedirectAuthenticatedUser = ({ children }) => {
+	const { isAuthenticated, user,isVerified } = useAuthStore();
+	console.log("RedirectAuthenticatedUser - isAuthenticated:", isAuthenticated, "user:", user);
 
-  {
-    id: "5",
-    position: { x: 650, y: 420 },
-    data: { label: "Projects" },
-  },
-];
+	if (isAuthenticated && isVerified) {
+		return <Navigate to='/home' replace />;
+	}
 
-const initialEdges = [
-  {
-    id: "e1-2",
-    source: "1",
-    target: "2",
-    animated: true,
-  },
-  {
-    id: "e1-3",
-    source: "1",
-    target: "3",
-    animated: true,
-  },
-  {
-    id: "e1-4",
-    source: "1",
-    target: "4",
-    animated: true,
-  },
-  {
-    id: "e1-5",
-    source: "1",
-    target: "5",
-    animated: true,
-  },
-];
+	return children;
+};
 
 export default function App() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+	const { isCheckingAuth, checkAuth } = useAuthStore();
 
-  const onConnect = useCallback(
-    (params) =>
-      setEdges((eds) =>
-        addEdge(
-          {
-            ...params,
-            animated: true,
-          },
-          eds
-        )
-      ),
-    []
-  );
+	useEffect(() => {
+		checkAuth();
+	}, [checkAuth]);
 
-  return (
-    <div style={{ width: "100vw", height: "100vh" }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onConnect={onConnect}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        fitView
-      >
-        <MiniMap />
-        <Controls />
-        <Background gap={20} size={1} />
-      </ReactFlow>
-    </div>
-  );
+	if (isCheckingAuth) return <LoadingSpinner />;
+
+	return (
+		<div
+				>
+	
+           {/* <Navbar/> */}
+			<Routes>
+			
+          <Route path='/' element={<LandingPage />} />
+        <Route
+          path='/home'
+          element={
+             <ProtectedRoute>
+              <HomePage />
+             </ProtectedRoute>
+          }
+        />
+			
+				
+				<Route
+					path='/signup'
+					element={
+						<RedirectAuthenticatedUser>
+							<SignupPage />
+						</RedirectAuthenticatedUser>
+					}
+				/>
+						{/* <Route
+					path='/map'
+					element={
+				<ReactFlowProvider>
+							<MindMap />
+						</ReactFlowProvider>
+					}
+				/> */}
+						{/* <Route
+					path='/project/:projectId'
+					element={
+				<ReactFlowProvider>
+							<MindMap2 />
+						</ReactFlowProvider>
+					}
+				/> */}
+				<Route
+					path='/login'
+					element={
+						<RedirectAuthenticatedUser>
+							<SignupPage />
+						</RedirectAuthenticatedUser>
+					}
+				/>
+				<Route path='/verify-email' element={<EmailVerificationPage />} />
+				<Route
+					path='/forgot-password'
+					element={
+						<RedirectAuthenticatedUser>
+							<ForgotPasswordPage />
+						</RedirectAuthenticatedUser>
+					}
+				/>
+				<Route 
+				 path={`/project/:projectId`}
+				 element={
+					<ProtectedRoute>
+						<ProjectPage />
+					</ProtectedRoute>
+				}
+				/>
+
+				<Route
+					path='/reset-password/:token'
+					element={
+						<RedirectAuthenticatedUser>
+							<ResetPassword />
+						</RedirectAuthenticatedUser>
+					}
+				/>
+				<Route path='*' element={<Navigate to='/' replace />} />
+			</Routes>
+			<Toaster />
+		</div>
+	);
 }
+

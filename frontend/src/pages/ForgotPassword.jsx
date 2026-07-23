@@ -1,19 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 export default function ForgotPassword() {
+  const { forgotPassword } = useAuthStore();
   const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // TODO: replace with your real backend call, e.g.:
-    // await fetch('/api/forgot-password', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ email })
-    // });
+    await forgotPassword(email);
 
     setStep("sent");
   };

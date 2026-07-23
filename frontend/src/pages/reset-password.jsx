@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useAuthStore } from "../store/authStore";
 
 export default function ResetPassword() {
+  const { resetPassword } = useAuthStore();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -15,8 +17,7 @@ export default function ResetPassword() {
     }
     setErrorMsg("");
 
-    // TODO: Replace with real backend update logic
-    // await fetch('/api/reset-password', { ... })
+    await resetPassword(password);
 
     setIsDone(true);
   };

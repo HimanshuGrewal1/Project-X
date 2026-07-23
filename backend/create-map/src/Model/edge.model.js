@@ -6,25 +6,20 @@ const EdgeScheme = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
              ref: 'Project'
         },
-   id: {
-    type: String,
-    required: true,
-    default: () => crypto.randomUUID()
-  },
   source: { type: String, required: true }, 
   target: { type: String, required: true }, 
-  type: { type: String, default: "smoothstep" },
+ 
   label: { type: String },
-  style: {
-    stroke: { type: String },
-    strokeWidth: { type: Number },
-    opacity: { type: Number },
-  },
-  animated: { type: Boolean, default: false },
-  data: {
-    confidence: { type: Number },
-    rationale: { type: String },
-  },
+  // style: {
+  //   stroke: { type: String },
+  //   strokeWidth: { type: Number },
+  //   opacity: { type: Number },
+  // },
+  // animated: { type: Boolean, default: false },
+  // data: {
+  //   confidence: { type: Number },
+  //   rationale: { type: String },
+  // },
 });
 
 export const Edge= mongoose.model('Edge',EdgeScheme);

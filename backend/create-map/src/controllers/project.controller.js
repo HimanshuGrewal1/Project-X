@@ -1,8 +1,8 @@
-import { Project } from "../models/Project.modle.js";
-import { Node } from "../models/node.modle.js";
-import { Edge } from "../models/edge.model.js";
-import cloudinary from "../utils/cloudinary.js";
-import fs from "fs";
+import { Project } from "../Model/Project.modle.js";
+import { Node } from "../Model/node.modle.js";
+import { Edge } from "../Model/edge.model.js";
+// import cloudinary from "../utils/cloudinary.js";
+// import fs from "fs";
 import crypto from "crypto";
  
 
@@ -29,13 +29,13 @@ export const createProject = async (req, res) => {
    const safeNodes = nodes.map((n, i) => ({
   ...n,
   projectId,
-  id: `node-${crypto.randomUUID()}`
+  
 }));
 
 const safeEdges = edges.map((e, i) => ({
   ...e,
   projectId,
-  id: `edge-${crypto.randomUUID()}`
+  
 }));
 
 const createdNodes = await Node.insertMany(safeNodes);
@@ -108,22 +108,22 @@ export const getProject = async (req, res) => {
 
 export const AddNote= async (req,res)=>{
     const {projectId}= req.params;
-    const {position,data,type,id,style}= req.body;
+    const {position,label,description,icon,id}= req.body;
     console.log(req.body);
     try {{
         const newNode= new Node({
             projectId,
           id,
             position,
-            data,
-            type,
-            style
+            label,
+            description,
+            icon,
         });
         await newNode.save();
         res.status(201).json({
             success:true,
             message:"Node added successfully",
-            newNode
+            node: newNode
         });
     }} catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -134,25 +134,21 @@ export const AddNote= async (req,res)=>{
 
 export const AddEdge= async (req,res)=>{
     const {projectId}= req.params;
-    const {id,source,target,data,type,label,style,animated}= req.body;
+    const {source,target,label}= req.body;
     console.log(req.body);
     try {{
         const newEdge= new Edge({
             projectId,
-            id,
+            label,
             source,
             target,
-            type,
-            label,
-            style,
-            animated,
-            data
+           
         });
         await newEdge.save();
         res.status(201).json({
             success:true,
             message:"Edge added successfully",
-            newEdge
+            edge: newEdge
         });
     }} catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -162,12 +158,13 @@ export const AddEdge= async (req,res)=>{
 
 export const EditNode= async (req,res)=>{
     const {projectId}= req.params;
-    const {id,position,data,type,style}= req.body;
+    const {id,position,label,description,icon}= req.body;
+    console.log(req.body);
     try {{
         const updatedNode= await Node.findOneAndUpdate(
             { projectId, id },
-            { position, data, type, style },
-            { new: true }
+            { position, label, description, icon },
+            { 'returnDocument':"after" }
         );
         if (!updatedNode) {
             throw new Error("Node not found");
@@ -175,9 +172,72 @@ export const EditNode= async (req,res)=>{
         res.status(200).json({
             success:true,
             message:"Node updated successfully",
-            updatedNode
+            node: updatedNode
         });
     }} catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
 }
+
+export const EditEdge= async (req,res)=>{
+    const {projectId}= req.params;
+    const {_id,source,target,label}= req.body;
+    try {{
+        const updatedEdge= await Edge.findOneAndUpdate(
+            { projectId, _id },
+            { source, target, label },
+            { 'returnDocument':"after" }
+        );
+        if (!updatedEdge) {
+            throw new Error("Edge not found");
+        }
+        res.status(200).json({
+            success:true,
+            message:"Edge updated successfully",
+            edge: updatedEdge
+        });
+    }} catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+  }
+
+  export const DeleteNode= async (req,res)=>{
+    const {projectId}= req.params;
+    const {id}= req.body;
+    try {{
+        const deletedNode= await Node.findOneAndDelete(
+            { projectId, id }
+        );
+        if (!deletedNode) {
+            throw new Error("Node not found");
+        }
+        res.status(200).json({
+            success:true,
+            message:"Node deleted successfully",
+            node: deletedNode
+        });
+    }} catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+  }
+
+  export const DeleteEdge= async (req,res)=>{
+    const {projectId}= req.params;
+    const {_id}= req.body;
+    try {{
+        const deletedEdge= await Edge.findOneAndDelete(
+            { projectId, _id }
+        );
+        if (!deletedEdge) {
+            throw new Error("Edge not found");
+        }
+        res.status(200).json({
+            success:true,
+            message:"Edge deleted successfully",
+            edge: deletedEdge
+        });
+    }} catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+  }
+
